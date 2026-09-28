@@ -46,6 +46,7 @@ The business needs one reconciled view of the shipment journey.
 3. Which postcodes have the highest delivery failure rate?
 4. Where do shipments stall in the journey, and for how long?
 5. Do carrier scan events agree with telematics evidence?
+6. Does weather affect delivery failure rates by region?
 
 ## 5. KPIs
 
@@ -54,6 +55,7 @@ The business needs one reconciled view of the shipment journey.
 - First-attempt delivery success rate
 - Median and 90th-percentile transit time by lane
 - Scan-to-telematics agreement rate
+- Weather impact score on delivery failures
 - Data freshness and pipeline success rate
 
 ## 6. Data sources (in scope)
@@ -63,6 +65,7 @@ The business needs one reconciled view of the shipment journey.
 | Orders | OMS (Azure SQL) | Change data capture | Relational | Continuous |
 | Carrier scans | Partner feeds | Batch file ingestion | CSV / JSON | Several times daily |
 | Telematics | Vehicle devices | Streaming | JSON events | ~30 seconds |
+| Weather | Open-Meteo API | REST API | JSON | Hourly |
 | Reference | ABS / Australia Post | API and batch | CSV / JSON | Infrequent |
 
 Five further enterprise source systems are documented but explicitly out of
@@ -79,6 +82,7 @@ The generated sources will contain, by design:
 - Inconsistent timestamp formats and timezone handling
 - Telemetry gaps (device offline)
 - Orders with no corresponding scan events, and vice versa
+- Weather API timeouts and missing data windows
 
 ## 8. Technical requirements
 
@@ -98,7 +102,7 @@ The generated sources will contain, by design:
 
 ## 10. Architecture summary
 
-Sources → Event Hubs (streaming) and batch ingestion → Azure Databricks
+Sources → Event Hubs (streaming) and batch/API ingestion → Azure Databricks
 (bronze / silver / gold Delta) → Microsoft Fabric shortcut → Power BI.
 
 Cross-cutting: Unity Catalog governance, GitHub Actions CI/CD, Azure Monitor
